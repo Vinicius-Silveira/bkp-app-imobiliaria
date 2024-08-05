@@ -1,0 +1,263 @@
+// ignore_for_file: file_names
+import 'package:flutter/material.dart';
+//import 'package:imobiliaria/custom/customAppBar.dart';
+import '../utils/imoveis_data.dart';
+import 'imoveisInfo.dart';
+import '../custom/customSidebar.dart';
+
+class LandingScreen extends StatefulWidget {
+  const LandingScreen({Key? key}) : super(key: key);
+
+  @override
+  State<LandingScreen> createState() => _LandingScreenState();
+}
+
+class _LandingScreenState extends State<LandingScreen> {
+  final List<Map<String, dynamic>> _imoveis = imoveisData;
+
+  // funcao limpa textField
+  final fieldText = TextEditingController();
+
+  void clearText() {
+    fieldText.clear();
+  }
+
+  //lista que vai usar dados para o listview da pesquisa
+  List<Map<String, dynamic>> _foundImoveis = [];
+  List<Map<String, dynamic>> results = [];
+
+  //funcao sera chamada quando digitar no campo de texto
+  void _runFilter(String enteredKeyword) {
+    if (enteredKeyword.isEmpty) {
+      _foundImoveis.clear();
+      results.clear();
+    } else {
+      results = _imoveis
+          .where(
+            (element) => element["tipo"]
+                .toLowerCase()
+                .contains(enteredKeyword.toLowerCase()),
+          )
+          .toList();
+    }
+
+    setState(() {
+      _foundImoveis = results;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Scaffold(
+        // DRAWER = BOTAO DE MENU LATERAL (SIDEBAR)
+        drawer: const CustomSidebar(),
+        body: NestedScrollView(
+          floatHeaderSlivers: false,
+          headerSliverBuilder: (context, __) => [
+            SliverAppBar(
+              // tamanho da appBar quando expandida
+              expandedHeight: 175,
+              iconTheme:
+                  const IconThemeData(size: 45), // tamanho do botao sidebar
+              foregroundColor: Colors.black, // cor do botao
+              flexibleSpace: FlexibleSpaceBar(
+                centerTitle: true,
+                // titulo da appBar
+                title: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    FittedBox(
+                      child: Text(
+                        'VVL BORGES IMOBILIÁRIA',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          // sombra do titulo da appBar
+                          shadows: <Shadow>[
+                            Shadow(
+                              blurRadius: 3,
+                              color: Colors.black54,
+                              offset: Offset(3.5, 3), // offset x / y
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                // IMAGEM DE FUNDO DA APPBAR
+                background: Image.asset(
+                  "assets/images/logoVVL2.jpeg",
+                  fit: BoxFit.cover,
+                ),
+              ),
+              backgroundColor: Colors.transparent,
+              // esconde e mostra appbar
+              snap: true,
+              floating: true,
+            ),
+          ],
+          // CORPO DA LANDING SCREEN
+          body: Column(
+            children: [
+              TextField(
+                onChanged: (value) => _runFilter(value),
+                style: const TextStyle(
+                  fontSize: 24,
+                ),
+                decoration: const InputDecoration(
+                  hintText: 'Pesquisar',
+                  prefixText: '  ',
+                  suffixIcon: Icon(
+                    Icons.search,
+                    color: Colors.black,
+                    size: 35,
+                  ),
+                ),
+              ),
+
+              /*ElevatedButton(
+                onPressed: clearText,
+                style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(Colors.green)),
+                child: const Text('Clear'),
+              ),*/
+
+              Expanded(
+                // se o campo de texto não estiver vazio => entao pesquise
+                child: _foundImoveis.isNotEmpty
+                    ? ListView.builder(
+                        physics: const BouncingScrollPhysics(),
+                        itemCount: _foundImoveis.length,
+                        itemBuilder: (context, index) => Padding(
+                          padding: const EdgeInsets.only(left: 8, right: 8),
+                          child: Card(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(9)),
+                            key: ValueKey(_foundImoveis[index]["id"]),
+                            color: Colors.white70,
+                            elevation: 1,
+                            margin: const EdgeInsets.symmetric(vertical: 10),
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => ImoveisInfo(
+                                        itemData: _foundImoveis[index]),
+                                  ),
+                                );
+                              },
+                              child: Column(
+                                children: [
+                                  ListTile(
+                                    leading: Text(
+                                      'ID: ' +
+                                          _foundImoveis[index]["id"].toString(),
+                                      style: const TextStyle(
+                                          fontSize: 24, height: 1.55),
+                                    ),
+                                    title: Text(_foundImoveis[index]['tipo']),
+                                    subtitle: Text(
+                                      _foundImoveis[index]["endereco"]
+                                          .toString(),
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                  ),
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(9),
+                                    child: Image.asset(
+                                        'assets/images/imovel${_foundImoveis[index]["id"]}.jpg'),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                    // SENAO, mostre todos os imoveis
+                    : ListView.builder(
+                        physics: const BouncingScrollPhysics(),
+                        // imoveisData = array de objetos do arquivo imoveis_data
+                        itemCount: imoveisData.length,
+                        itemBuilder: (context, index) {
+                          // RETORNA IMOVEIS DE imoveisData NO INDICE DO OBJETO
+                          return ImoveisItem(itemData: imoveisData[index]);
+                        },
+                      ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class ImoveisItem extends StatelessWidget {
+  const ImoveisItem({Key? key, required this.itemData}) : super(key: key);
+
+  final dynamic itemData;
+
+  @override
+  Widget build(BuildContext context) {
+    // RETORNA ARRAY DE DADOS DOS IMOVEIS DO ARQUIVO IMOVEIS_DATA PARA A LANDING PAGE
+    // GESTUREDETECTOR DETECTA ONDE O USUARIO CLICAR E TRAÇA A ROTA P/ A PAGINA DE INFO DOS IMOVEIS
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => ImoveisInfo(itemData: itemData),
+          ),
+        );
+      },
+      // CONTAINER DOS IMOVEIS A VENDA - FOTO-DESCRICAO
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 15),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 0, 8, 2),
+              child: Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(9),
+                    child: Image.asset(itemData["image"]),
+                  ),
+                ],
+              ),
+            ),
+
+            // COLUNA DESCRICAO DOS IMOVEIS A VENDA
+            Column(
+              children: [
+                Text(
+                  "${itemData["tipo"]}",
+                  overflow: TextOverflow.fade,
+                  style: const TextStyle(
+                      fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  "${itemData["endereco"]}",
+                  overflow: TextOverflow.fade,
+                  style: const TextStyle(fontSize: 18),
+                ),
+                Text(
+                  "R\$ ${itemData["valor"]}",
+                  style: const TextStyle(fontSize: 18),
+                ),
+              ],
+            ),
+            const Divider(
+              thickness: 1,
+              indent: 8,
+              endIndent: 8,
+              color: Colors.black26,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
