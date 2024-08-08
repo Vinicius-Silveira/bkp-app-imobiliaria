@@ -45,7 +45,7 @@ class _LandingScreenState extends State<LandingScreen> {
       _foundImoveis = results;
     });
   }
-
+  
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -69,18 +69,18 @@ class _LandingScreenState extends State<LandingScreen> {
                   children: [
                     FittedBox(
                       child: Text(
-                        'VVL BORGES IMOBILIÁRIA',
+                        'IMOBILIÁRIA',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Colors.black,
                           fontSize: 16,
                           // sombra do titulo da appBar
-                          shadows: <Shadow>[
+                          /*shadows: <Shadow>[
                             Shadow(
                               blurRadius: 3,
                               color: Colors.black54,
                               offset: Offset(3.5, 3), // offset x / y
                             ),
-                          ],
+                          ],*/
                         ),
                       ),
                     ),
@@ -88,8 +88,8 @@ class _LandingScreenState extends State<LandingScreen> {
                 ),
                 // IMAGEM DE FUNDO DA APPBAR
                 background: Image.asset(
-                  "assets/images/logoVVL2.jpeg",
-                  fit: BoxFit.cover,
+                  "assets/images/imobicef_logo1.png",
+                  fit: BoxFit.scaleDown,
                 ),
               ),
               backgroundColor: Colors.transparent,
@@ -101,6 +101,7 @@ class _LandingScreenState extends State<LandingScreen> {
           // CORPO DA LANDING SCREEN
           body: Column(
             children: [
+              const Divider(color: Colors.black38, height: 1),
               TextField(
                 onChanged: (value) => _runFilter(value),
                 style: const TextStyle(
@@ -116,6 +117,7 @@ class _LandingScreenState extends State<LandingScreen> {
                   ),
                 ),
               ),
+              const SizedBox(height: 10),
 
               /*ElevatedButton(
                 onPressed: clearText,
@@ -148,6 +150,7 @@ class _LandingScreenState extends State<LandingScreen> {
                                   ),
                                 );
                               },
+                              //CAMPO DE INFORMACOES DE PESQUISA DOS IMOVEIS
                               child: Column(
                                 children: [
                                   ListTile(
@@ -159,10 +162,10 @@ class _LandingScreenState extends State<LandingScreen> {
                                     ),
                                     title: Text(_foundImoveis[index]['tipo']),
                                     subtitle: Text(
-                                      _foundImoveis[index]["endereco"]
+                                      _foundImoveis[index]['endereco'] + " R\$" +_foundImoveis[index]["valor"]
                                           .toString(),
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(fontSize: 16),
+                                      style: const TextStyle(fontSize: 17),
+                                      softWrap: true,
                                     ),
                                   ),
                                   ClipRRect(
@@ -230,6 +233,7 @@ class ImoveisItem extends StatelessWidget {
             ),
 
             // COLUNA DESCRICAO DOS IMOVEIS A VENDA
+            
             Column(
               children: [
                 Text(
@@ -245,6 +249,7 @@ class ImoveisItem extends StatelessWidget {
                 ),
                 Text(
                   "R\$ ${itemData["valor"]}",
+                  overflow: TextOverflow.fade,
                   style: const TextStyle(fontSize: 18),
                 ),
               ],

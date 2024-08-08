@@ -16,7 +16,6 @@ class ImoveisInfo extends StatelessWidget {
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
-        // ignore: sized_box_for_whitespace
         body: Container(
           width: double.maxFinite,
           height: double.maxFinite,
@@ -166,7 +165,7 @@ class ImoveisInfo extends StatelessWidget {
                 child: Center(
                   child: OptionButton(
                     //id do imovel selecionado
-                    text: " Contato",
+                    text: "Contato",
                     id: itemData["id"],
                     width: size.width * 0.4,
                     icon: FontAwesomeIcons.whatsapp,
